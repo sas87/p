@@ -23,7 +23,7 @@ public:
 	void gotMessage(ofMessage msg);
 
 private:
-	int counter;
+	int time;
 	bool isRunning;
 	int box[4];
 
@@ -37,9 +37,20 @@ private:
 
 	ofVec3f FlotoCol(float p);
 
+	ofVec2f toRelativeC(ofVec2f v);
+	void toRelativeC(int* vx, int* vy);
+	ofVec2f toAbsoluteC(ofVec2f &v);
+	void toAbsoluteC(int* vx, int* vy);
+
+	int toRelativeCx(int vx);
+	int toRelativeCy(int vy);
+	int toAbsoluteCx(int vx);
+	int toAbsoluteCy(int vy);
+
+	/*
 	ofImage  img;
 	bool videc;
-	int pic;
+	int pic;*/
 
 
 };

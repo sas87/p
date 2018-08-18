@@ -6,18 +6,17 @@ void ofApp::setup() {
 	//ofDisableAntiAliasing();
 
 	isRunning = false;
-	counter = 0;
+	time = 0;
 	gene = 0;
-	videc = false;
-	pic = 0;
+	ofBackground(200, 200, 200);
+	//videc = false;
+	//pic = 0;                          //画像保存
 
 	box[0] = 50;     //x座標
-	box[1] = 50;     //y座標
+	box[1] = 80;     //y座標
 	box[2] = 512;    //x幅
-	box[3] = 512;    //y幅
+	box[3] = 256;    //y幅
 					 //512x512の箱を定義
-
-	ofBackground(255, 255, 255);
 
 	world = vector<vector<bool>>(128, vector<bool>(128, false));  //箱 
 
@@ -28,20 +27,20 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	counter++;
-	if (counter > 1000)counter = 0;
+	time++;
+	if (time > 1000)time = 0;
 	if (isRunning && (world != pre_w))
 	{
-		//if (counter % 2 == 0) 
 	    geneChange();
 		gene++;
-		/**/
-		if ( pic < 140) 
+		/*                                //画像保存
+		if (videc && pic < 140) 
 		{
 			img.grabScreen(0, 0, 2*box[0]+box[2], 2*box[1] + box[3]);
 			img.save("002/"+ofToString(pic)+".png");
 			pic++;
 		}
+		*/
 	}
 
 }
@@ -82,19 +81,20 @@ void ofApp::draw() {
 			{
 				ofSetColor(255, 255, 255);
 			}
-			ofSetColor(255* i / (int)world.size(), 255 * j / (int)world[i].size(), 128);                           //Debug
+			ofSetColor(255* i / (int)world.size(), 255 * j / (int)world[i].size(), 128,128);                           //Debug
 			ofDrawRectangle(px, py, width, height);
 		}
-	}/**/
+	}
 
 	ofSetColor(0, 0, 0);
 	ofDrawBitmapString(
 		(string)""
-		+ofToString(ofGetFrameRate()) + "fps\r\n"
-		+"g: "+ofToString(gene) +"\r\n"
-		,box[0]+box[2]+50,box[1]+60);
-
-	//ofDrawBitmapString(, 10, 15);
+		+ ofToString(ofGetFrameRate()) + "fps\r\n"
+		+ "box: " + ofToString(box[2]) + " x " + ofToString(box[3]) + "\r\n"
+		+ "     " + ofToString(world[0].size()) + " x " + ofToString(world.size()) + "\r\n"
+		+ "isRunning: " + ofToString(isRunning) + "\r\n"
+		+ "g: " + ofToString(gene) + "\r\n"
+		, box[0] + box[2] + 50, box[1] + 10);
 }
 
 //--------------------------------------------------------------
@@ -103,7 +103,7 @@ void ofApp::keyPressed(int key) {
 	if (key == 'z')isRunning = !isRunning;
 
 	if (key == 'x') {
-		videc = true;
+		//videc = true;
 	}
 
 }
@@ -224,6 +224,41 @@ ofVec3f ofApp::FlotoCol(float p)
 	int g = 128 + 64 * sin(2.0f*p*PI - PI / 2.0f);
 	int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
 	return ofVec3f(r,g,b);
+}
+
+ofVec2f ofApp::toRelativeC(ofVec2f v)
+{
+	return ofVec2f(v.x - box[0] - (box[2] / 2), v.y - box[1] - (box[3] / 2));
+}
+void ofApp::toRelativeC(int* vx, int* vy)
+{
+	*vx = *vx - box[0] - (box[2] / 2);
+	*vy = *vy - box[1] - (box[3] / 2);
+}
+ofVec2f ofApp::toAbsoluteC(ofVec2f &v)
+{
+	return ofVec2f(v.x + box[0] + (box[2] / 2), v.y + box[1] + (box[3] / 2));;
+}
+void ofApp::toAbsoluteC(int* vx, int* vy)
+{
+	*vx = *vx + box[0] + (box[2] / 2);
+	*vy = *vy + box[1] + (box[3] / 2);
+}
+int ofApp::toRelativeCx(int vx)
+{
+	return vx - box[0] - (box[2] / 2);
+}
+int ofApp::toRelativeCy(int vy)
+{
+	return vy - box[1] - (box[3] / 2);;
+}
+int ofApp::toAbsoluteCx(int vx)
+{
+	return vx + box[0] + (box[2] / 2);
+}
+int ofApp::toAbsoluteCy(int vy)
+{
+	return vy + box[0] + (box[2] / 2);
 }
 
 //--------------------------------------------------------------
