@@ -29,11 +29,15 @@ private:
 
 	int gene;
 
-	vector<vector<bool>> world;
-	vector<vector<bool>> pre_w;
+	vector<vector<float>> world;
+	vector<vector<bool>> col_w;
+	vector<vector<float>> pre_w;
 	void geneChange();
-	void addVecter(vector<vector<bool>> vv1, int px, int py);
-	void addVecter(vector<vector<bool>> vv1);
+
+	template<typename T_0>
+	void addVecter(vector<vector<T_0>> &vv0, vector<vector<T_0>> vv1, int px, int py);
+	template<typename T_1>
+	void addVecter(vector<vector<T_1>> &vv0, vector<vector<T_1>> vv1);
 
 	ofVec3f FlotoCol(float p);
 

@@ -15,12 +15,34 @@ void ofApp::setup() {
 	box[0] = 50;     //x座標
 	box[1] = 80;     //y座標
 	box[2] = 512;    //x幅
-	box[3] = 256;    //y幅
+	box[3] = 512;    //y幅
 					 //512x512の箱を定義
 
-	world = vector<vector<bool>>(128, vector<bool>(128, false));  //箱 
+	world = vector<vector<float>>(16, vector<float>(16, 0.0f));  //箱 
+	col_w = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 
+	vector<vector<float>> st = { {1,0,1,1 } };
+
+	vector<vector<float>> rum = vector<vector<float>>(16, vector<float>(16, 0.0f));
+	for (size_t i = 0; i < rum.size(); i++)
+	{
+		for (size_t j = 0; j < rum[0].size(); j++)
+		{
+			rum[i][j] = ofRandom(1.0f);
+		}
+	}
+
+	vector<vector<bool>> rum_c = vector<vector<bool>>(64, vector<bool>(64, 0.0f));
+	for (size_t i = 0; i < rum_c.size(); i++)
+	{
+		for (size_t j = 0; j < rum_c[0].size(); j++)
+		{
+			rum_c[i][j] = (ofRandom(1.0f) > 0.9f);
+		}
+	}
 	
+	addVecter<float>(world,rum);
+	addVecter<bool>(col_w, rum_c);
 	ofSetFrameRate(60);
 
 }
@@ -28,20 +50,26 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 	time++;
-	if (time > 1000)time = 0;
-	if (isRunning && (world != pre_w))
+	//if (time % 10 == 0)
 	{
-	    geneChange();
-		gene++;
-		/*                                //画像保存
-		if (videc && pic < 140) 
+		
+		if (time > 1000)time = 0;
+		if (isRunning && (world != pre_w))
 		{
+			geneChange();
+			gene++;
+			/*                                //画像保存
+			if (videc && pic < 140)
+			{
 			img.grabScreen(0, 0, 2*box[0]+box[2], 2*box[1] + box[3]);
 			img.save("002/"+ofToString(pic)+".png");
 			pic++;
+			}
+			*/
 		}
-		*/
+
 	}
+
 
 }
 
@@ -62,7 +90,7 @@ void ofApp::draw() {
 	{
 		float ic = 1.0f - i * 1.0f / (float)world.size();
 		ofSetColor(FlotoCol(ic).x, FlotoCol(ic).y, FlotoCol(ic).z);
-		ofDrawRectangle(box[0] + box[2] + 12, box[1] + i * height, 2*width, height);
+		ofDrawRectangle(box[0] + box[2] + 12, box[1] + i * height, 2 * width, height);
 	}
 
 	for (size_t i = 0; i < (int)world.size(); i++)
@@ -73,16 +101,16 @@ void ofApp::draw() {
 		{
 			int px = box[0] + j * box[2] / (int)world[i].size();               //列
 
-			if (world[i][j])
-			{
-				ofSetColor(0, 0, 0);
-			}
-			else
-			{
-				ofSetColor(255, 255, 255);
-			}
-			ofSetColor(255* i / (int)world.size(), 255 * j / (int)world[i].size(), 128,128);                           //Debug
+			/*
+			if (!col_w[i][j])
+			{*/
+				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
+			//}else ofSetColor(200, 200, 200);
+			
 			ofDrawRectangle(px, py, width, height);
+
+			ofSetColor(255,255,255);
+			//ofDrawBitmapString(ofToString((float)(world[i][j])*100)+" %", px, py +10);
 		}
 	}
 
@@ -110,7 +138,7 @@ void ofApp::keyPressed(int key) {
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
-	
+
 }
 
 //--------------------------------------------------------------
@@ -161,69 +189,61 @@ void ofApp::gotMessage(ofMessage msg) {
 void ofApp::geneChange()
 {
 	pre_w = world;
-	for (size_t i = 0+1; i < (int)pre_w.size()-1; i++)
+	for (size_t i = 0 + 1; i < (int)pre_w.size() - 1; i++)
 	{
-		for (size_t j = 0+1; j < (int)pre_w[i].size()-1; j++)
+		for (size_t j = 0 + 1; j < (int)pre_w[i].size() - 1; j++)
 		{
-			int env = 0;
-						
-			if (pre_w[i - 1][j - 1]) env++;
-			if (pre_w[i - 1][j]) env++;
-			if (pre_w[i - 1][j + 1]) env++;
-			if (pre_w[i][j - 1]) env++;
-			if (pre_w[i][j + 1]) env++;
-			if (pre_w[i + 1][j - 1]) env++;
-			if (pre_w[i + 1][j]) env++;
-			if (pre_w[i + 1][j + 1]) env++;
-		
-			if (pre_w[i][j])
-			{
-				world[i][j] = (env == 2 || env == 3) ? true : false;
-			}
-			else 
-			{
-				world[i][j] = (env == 3) ? true : false;
-			}
-			/*
+			float p = 1.0f / 8.0f;
+			world[i][j] -= pre_w[i][j] * p *8.0f;
 
-			world[i][j] = (env >= 1) ? true : false;*/
+			world[i - 1][j - 1] += 1.0f*pre_w[i][j] * p;
+			world[i - 1][j]     += 1.0f*pre_w[i][j] * p;
+			world[i - 1][j + 1] += 1.0f*pre_w[i][j] * p;
+			world[i][j - 1]     += 1.0f*pre_w[i][j] * p;
+			world[i][j + 1]     += 1.0f*pre_w[i][j] * p;
+			world[i + 1][j - 1] += 1.0f*pre_w[i][j] * p;
+			world[i + 1][j]     += 1.0f*pre_w[i][j] * p;
+			world[i + 1][j + 1] += 1.0f*pre_w[i][j] * p;
+
 		}
 	}/**/
 }
 
-void ofApp::addVecter(vector<vector<bool>> vv1, int px, int py)
+template<typename T_0>
+void ofApp::addVecter(vector<vector<T_0>> &vv0, vector<vector<T_0>> vv1, int px, int py)
 {
-	if (px < 0 || py < 0 || py + (int)vv1.size() > world.size() || px + (int)vv1.size() > world[0].size())return;
+	if (px < 0 || py < 0 || py + (int)vv1.size() > vv0->size() || px + (int)vv1.size() > vv0->at(0).size())return;
 
 	vector<vector<bool>> line;
-	for (size_t i = py; i < py+(int)vv1.size(); i++)
+	for (size_t i = py; i < py + (int)vv1.size(); i++)
 	{
 		for (size_t j = px; j < px + (int)vv1[0].size(); j++)
 		{
-			world[i][j] = vv1[i - py][j - px];
+			vv0[i][j] = vv1[i - py][j - px];
 		}
 	}
 }
 
-void ofApp::addVecter(vector<vector<bool>> vv1)
+template<typename T_1>
+void ofApp::addVecter(vector<vector<T_1>> vv0, vector<vector<T_1>> vv1)
 {
-	int py = ((int)world.size() - vv1.size()) / 2;
-	int px = ((int)world[0].size() - vv1[0].size()) / 2;
+	int py = ((int)vv0.size() - vv1.size()) / 2;
+	int px = ((int)vv0[0].size() - vv1[0].size()) / 2;
 
-	ofApp::addVecter(vv1, px, py);
+	ofApp::addVecter(vv0, vv1, px, py);
 }
 
 ofVec3f ofApp::FlotoCol(float p)
 {
-	/*
-	if (p<=(1.0f/6.0f))
+	p *= 10.0f;
+	if (p <= 1 && p >= 0)
 	{
-
-	}*/
-	int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
-	int g = 128 + 64 * sin(2.0f*p*PI - PI / 2.0f);
-	int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
-	return ofVec3f(r,g,b);
+		int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
+		int g = 128 + 64 * sin(2.0f*p*PI - PI / 2.0f);
+		int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
+		return ofVec3f(r, g, b);
+	}
+	else return ofVec3f(0, 0, 0);
 }
 
 ofVec2f ofApp::toRelativeC(ofVec2f v)
