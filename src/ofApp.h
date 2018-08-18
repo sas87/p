@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ofMain.h"
 
@@ -24,9 +24,9 @@ public:
 
 private:
 	int counter;
-	bool start;
 	bool isRunning;
-	int base[4];
+	int box[4];
+
 	int gene;
 
 	vector<vector<bool>> world;
@@ -35,11 +35,13 @@ private:
 	void addVecter(vector<vector<bool>> vv1, int px, int py);
 	void addVecter(vector<vector<bool>> vv1);
 
-	ofImage     img;
+	ofVec3f FlotoCol(float p);
+
+	ofImage  img;
 	bool videc;
 	int pic;
 
-};
 
+};
 
 
