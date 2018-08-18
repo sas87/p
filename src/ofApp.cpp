@@ -18,17 +18,18 @@ void ofApp::setup() {
 	box[3] = 512;    //y幅
 					 //512x512の箱を定義
 
-	world = vector<vector<float>>(16, vector<float>(16, 0.0f));  //箱 
+	world = vector<vector<float>>(128, vector<float>(128, 0.0f));  //箱 
 	col_w = vector<vector<bool>>(world.size(), vector<bool>(world[0].size(), false));
 
 	vector<vector<float>> st = { {1,0,1,1 } };
 
-	vector<vector<float>> rum = vector<vector<float>>(16, vector<float>(16, 0.0f));
+	vector<vector<float>> rum = vector<vector<float>>(100, vector<float>(100, 0.0f));
 	for (size_t i = 0; i < rum.size(); i++)
 	{
 		for (size_t j = 0; j < rum[0].size(); j++)
 		{
-			rum[i][j] = ofRandom(1.0f);
+			if (ofRandom(1.0f) > 0.99f)rum[i][j] = ofRandom(1.0f);
+			
 		}
 	}
 
@@ -42,7 +43,7 @@ void ofApp::setup() {
 	}
 	
 	addVecter<float>(world,rum);
-	addVecter<bool>(col_w, rum_c);
+	//addVecter<bool>(col_w, rum_c);
 	ofSetFrameRate(60);
 
 }
@@ -101,11 +102,13 @@ void ofApp::draw() {
 		{
 			int px = box[0] + j * box[2] / (int)world[i].size();               //列
 
-			/*
+			
 			if (!col_w[i][j])
-			{*/
+			{
+				float p = 1 - world[i][j];
 				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
-			//}else ofSetColor(200, 200, 200);
+				//ofSetColor(255 * p*8, 255 * p * 8, 255 * p * 8);
+			}else ofSetColor(200, 200, 200);
 			
 			ofDrawRectangle(px, py, width, height);
 
@@ -194,17 +197,51 @@ void ofApp::geneChange()
 		for (size_t j = 0 + 1; j < (int)pre_w[i].size() - 1; j++)
 		{
 			float p = 1.0f / 8.0f;
-			world[i][j] -= pre_w[i][j] * p *8.0f;
+			
 
-			world[i - 1][j - 1] += 1.0f*pre_w[i][j] * p;
-			world[i - 1][j]     += 1.0f*pre_w[i][j] * p;
-			world[i - 1][j + 1] += 1.0f*pre_w[i][j] * p;
-			world[i][j - 1]     += 1.0f*pre_w[i][j] * p;
-			world[i][j + 1]     += 1.0f*pre_w[i][j] * p;
-			world[i + 1][j - 1] += 1.0f*pre_w[i][j] * p;
-			world[i + 1][j]     += 1.0f*pre_w[i][j] * p;
-			world[i + 1][j + 1] += 1.0f*pre_w[i][j] * p;
+			int c=0;
 
+			if (!col_w[i - 1][j - 1]) 
+			{
+				world[i - 1][j - 1] += 1.0f*pre_w[i][j] * p;
+				c++; 
+			}
+			if (!col_w[i - 1][j])
+			{
+				world[i - 1][j]     += 1.0f*pre_w[i][j] * p;
+				c++;
+			}			
+			if (!col_w[i - 1][j + 1])
+			{world[i - 1][j + 1] += 1.0f*pre_w[i][j] * p;
+				c++;
+			}	
+			if (!col_w[i][j - 1])
+			{
+				world[i][j - 1]     += 1.0f*pre_w[i][j] * p;
+				c++;
+			}			
+			if (!col_w[i][j + 1])
+			{
+				world[i][j + 1]     += 1.0f*pre_w[i][j] * p;
+				c++;
+			}	
+			if (!col_w[i + 1][j - 1])
+			{
+				world[i + 1][j - 1] += 1.0f*pre_w[i][j] * p;
+				c++;
+			}		
+			if (!col_w[i + 1][j])
+			{
+				world[i + 1][j]     += 1.0f*pre_w[i][j] * p;
+				c++;
+			}			
+			if (!col_w[i + 1][j + 1])
+			{
+				world[i + 1][j + 1] += 1.0f*pre_w[i][j] * p;
+				c++;
+			}
+
+			world[i][j] -= pre_w[i][j] * p * c;
 		}
 	}/**/
 }
@@ -212,9 +249,8 @@ void ofApp::geneChange()
 template<typename T_0>
 void ofApp::addVecter(vector<vector<T_0>> &vv0, vector<vector<T_0>> vv1, int px, int py)
 {
-	if (px < 0 || py < 0 || py + (int)vv1.size() > vv0->size() || px + (int)vv1.size() > vv0->at(0).size())return;
+	if (px < 0 || py < 0 || py + (int)vv1.size() > vv0.size() || px + (int)vv1.size() > vv0[0].size())return;
 
-	vector<vector<bool>> line;
 	for (size_t i = py; i < py + (int)vv1.size(); i++)
 	{
 		for (size_t j = px; j < px + (int)vv1[0].size(); j++)
@@ -225,22 +261,28 @@ void ofApp::addVecter(vector<vector<T_0>> &vv0, vector<vector<T_0>> vv1, int px,
 }
 
 template<typename T_1>
-void ofApp::addVecter(vector<vector<T_1>> vv0, vector<vector<T_1>> vv1)
+void ofApp::addVecter(vector<vector<T_1>> &vv0, vector<vector<T_1>> vv1)
 {
 	int py = ((int)vv0.size() - vv1.size()) / 2;
-	int px = ((int)vv0[0].size() - vv1[0].size()) / 2;
+	int px = ((int)vv0.at(0).size() - vv1[0].size()) / 2;
 
 	ofApp::addVecter(vv0, vv1, px, py);
 }
 
 ofVec3f ofApp::FlotoCol(float p)
 {
-	p *= 10.0f;
+	
+	p *= 80.0f;
+	p = 1.0f - p;
 	if (p <= 1 && p >= 0)
-	{
+	{/*
 		int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
 		int g = 128 + 64 * sin(2.0f*p*PI - PI / 2.0f);
 		int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
+		return ofVec3f(r, g, b);*/
+		int r = p * 255;
+		int g = p * 255;
+		int b = p*255;
 		return ofVec3f(r, g, b);
 	}
 	else return ofVec3f(0, 0, 0);
