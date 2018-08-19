@@ -41,6 +41,21 @@ void ofApp::setup() {
 			rum_c[i][j] = (ofRandom(1.0f) > 0.9f);
 		}
 	}
+
+	for (size_t i = 0; i < col_w.size(); i++)
+	{
+		col_w[i][0] = true;
+		col_w[i][col_w[i].size()-1] = true;
+
+		if (i == 0 || i == col_w.size() - 1)
+		{
+			for (size_t j = 0; j < col_w[0].size(); j++)
+			{
+				col_w[i][j] = true;
+			}
+		}
+
+	}
 	
 	addVecter<float>(world,rum);
 	//addVecter<bool>(col_w, rum_c);
@@ -108,7 +123,7 @@ void ofApp::draw() {
 				float p = 1 - world[i][j];
 				ofSetColor(FlotoCol(world[i][j]).x, FlotoCol(world[i][j]).y, FlotoCol(world[i][j]).z);
 				//ofSetColor(255 * p*8, 255 * p * 8, 255 * p * 8);
-			}else ofSetColor(200, 200, 200);
+			}else ofSetColor(50,50,50);
 			
 			ofDrawRectangle(px, py, width, height);
 
@@ -273,17 +288,17 @@ ofVec3f ofApp::FlotoCol(float p)
 {
 	
 	p *= 80.0f;
-	p = 1.0f - p;
+	//p = 1.0f - p;
 	if (p <= 1 && p >= 0)
-	{/*
+	{
 		int r = 128 + 127 * sin(2.0f*p*PI / 2.0f - PI / 2.0f);
 		int g = 128 + 64 * sin(2.0f*p*PI - PI / 2.0f);
 		int b = 128 + 64 * sin(2.0f*p*PI - PI / 4.0f);
-		return ofVec3f(r, g, b);*/
+		return ofVec3f(r, g, b);/*
 		int r = p * 255;
 		int g = p * 255;
 		int b = p*255;
-		return ofVec3f(r, g, b);
+		return ofVec3f(r, g, b);*/
 	}
 	else return ofVec3f(0, 0, 0);
 }
